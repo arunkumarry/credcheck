@@ -2,7 +2,24 @@
   <%= turbo_frame_tag "recommendation_result" do %>
     <div class="bg-white shadow rounded-lg p-6 animate-fade-in-up">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">Recommendation for <%= "₹#{@amount}" %> on <%= @category %></h2>
-      
+
+      <% if @steps.present? %>
+        <details class="mb-4 rounded-lg border border-indigo-100 bg-indigo-50/40" open>
+          <summary class="cursor-pointer select-none px-4 py-2 text-sm font-semibold text-indigo-800">
+            🔎 How the agent worked this out — <%= @steps.size %> live search<%= "es" unless @steps.size == 1 %>
+          </summary>
+          <ol class="px-4 pb-3 pt-1 space-y-1">
+            <% @steps.each_with_index do |step, i| %>
+              <li class="text-xs text-gray-600">
+                <span class="font-semibold text-indigo-700"><%= i + 1 %>. <%= step.tool %></span>
+                — <span class="italic">"<%= step.query %>"</span>
+                <span class="text-gray-400">→ <%= step.result_count %> result<%= "s" unless step.result_count == 1 %></span>
+              </li>
+            <% end %>
+          </ol>
+        </details>
+      <% end %>
+
       <% if @error.present? %>
         <div class="bg-red-50 border-l-4 border-red-400 p-4">
           <div class="flex">
@@ -71,6 +88,14 @@
                     <p class="text-sm font-medium text-gray-700"><%= rewards_text %></p>
                   </div>
                   <p class="text-xs text-gray-500 leading-relaxed italic"><%= reasoning %></p>
+                  <% sources = rec["sources"] || rec["source"] %>
+                  <% if sources.present? %>
+                    <div class="flex flex-wrap gap-1 pt-1">
+                      <% Array(sources).each do |s| %>
+                        <span class="text-[10px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded px-1.5 py-0.5"><%= s %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
