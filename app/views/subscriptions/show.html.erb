@@ -1,0 +1,87 @@
+<%= turbo_frame_tag "dashboard_content" do %>
+  <div class="space-y-8 animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Subscription & Usage</h2>
+          <p class="text-slate-500 mt-1">Manage your plan and track your weekly usage.</p>
+        </div>
+        <div class="px-4 py-1.5 rounded-full <%= @user.free_tier? ? 'bg-slate-100 text-slate-600' : 'bg-orange-100 text-orange-600' %> text-xs font-bold uppercase tracking-widest">
+          <%= @user.subscription_plan.to_s.presence || "Free" %> Plan
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <%# Card Usage %>
+        <div class="p-6 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900">Active Cards</h4>
+              <p class="text-xs text-slate-500">Maximum active cards allowed</p>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="font-medium text-slate-700"><%= @user.user_cards.active.count %> of <%= @user.active_cards_limit == Float::INFINITY ? "Unlimited" : @user.active_cards_limit %></span>
+              <span class="text-slate-400"><%= ((@user.user_cards.active.count.to_f / (@user.active_cards_limit == Float::INFINITY ? 1 : @user.active_cards_limit)) * 100).round %>%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2">
+              <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: <%= @user.active_cards_limit == Float::INFINITY ? '100' : [(@user.user_cards.active.count.to_f / @user.active_cards_limit * 100), 100].min %>%"></div>
+            </div>
+          </div>
+        </div>
+
+        <%# Recommendation Usage %>
+        <div class="p-6 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900">Weekly Usage</h4>
+              <p class="text-xs text-slate-500">Recommendations this week</p>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="font-medium text-slate-700"><%= @user.recommendations_this_week %> of <%= @user.weekly_recommendations_limit == Float::INFINITY ? "Unlimited" : @user.weekly_recommendations_limit %></span>
+              <span class="text-slate-400"><%= ((@user.recommendations_this_week.to_f / (@user.weekly_recommendations_limit == Float::INFINITY ? 1 : @user.weekly_recommendations_limit)) * 100).round %>%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2">
+              <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: <%= @user.weekly_recommendations_limit == Float::INFINITY ? '100' : [(@user.recommendations_this_week.to_f / @user.weekly_recommendations_limit * 100), 100].min %>%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Upgrade Options %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <% if @user.free_tier? %>
+        <div class="bg-slate-900 rounded-2xl shadow-xl p-8 text-white relative overflow-hidden group">
+          <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl group-hover:bg-orange-500/30 transition-colors"></div>
+          <h3 class="text-xl font-bold mb-2">Upgrade to Premium</h3>
+          <p class="text-slate-400 text-sm mb-6">Get unlimited cards, unlimited AI recommendations, and priority processing.</p>
+          <div class="flex items-baseline gap-2 mb-8">
+            <span class="text-3xl font-bold">₹499</span>
+            <span class="text-slate-400 text-sm">/year</span>
+          </div>
+          <%= button_to "Upgrade Now", subscription_path(plan: "premium"), method: :patch, class: "w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5" %>
+        </div>
+      <% else %>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-slate-900">Switch to Free</h3>
+            <p class="text-slate-500 text-sm mt-2">Downgrade to the free plan. Note that you'll be limited to 3 cards and 10 recommendations per week.</p>
+          </div>
+          <%= button_to "Downgrade Plan", subscription_path(plan: "free"), method: :patch, class: "mt-8 w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition-all" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,123 @@
+<% @page_title = "My Wallet | CheckCred" %>
+
+<div class="bg-slate-50 min-h-screen font-sans">
+  
+  <%# Navigation Header (Reused/Simplified for Dashboard) %>
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex-shrink-0 flex items-center">
+          <%= link_to dashboard_path, class: "flex items-center gap-2" do %>
+            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-xl">C</span>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-slate-900">CheckCred</span>
+          <% end %>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-slate-600 text-sm font-medium mr-4">Hello, <%= Current.user.first_name %></span>
+          <%= button_to "Sign out", session_path, method: :delete, class: "text-slate-600 hover:text-orange-500 font-medium text-sm transition-colors" %>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex h-[calc(100vh-64px)] overflow-hidden">
+    
+    <%# Sidebar %>
+    <aside class="w-72 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-4 pt-8 shrink-0">
+      <nav class="flex flex-1 flex-col">
+        <ul role="list" class="flex flex-1 flex-col gap-y-7">
+          
+          <%# Main Nav %>
+          <li>
+            <ul role="list" class="-mx-2 space-y-1">
+              <li>
+                <%= link_to profile_path, data: { turbo_frame: "dashboard_content" }, class: "group flex gap-x-3 rounded-md bg-slate-50 p-2 text-sm leading-6 font-semibold text-orange-600" do %>
+                  <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                  My Profile
+                <% end %>
+              </li>
+              <li>
+                <%= link_to new_recommendation_path, data: { turbo_frame: "dashboard_content" }, class: "group flex gap-x-3 rounded-md bg-slate-50 p-2 text-sm leading-6 font-semibold text-orange-600 mt-2" do %>
+                  <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                  </svg>
+                  Get Recommendation
+                <% end %>
+              </li>
+              <li>
+                <%= link_to transactions_path, data: { turbo_frame: "dashboard_content" }, class: "group flex gap-x-3 rounded-md bg-slate-50 p-2 text-sm leading-6 font-semibold text-orange-600 mt-2" do %>
+                  <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Transactions
+                <% end %>
+              </li>
+              <li>
+                <%= link_to subscription_path, data: { turbo_frame: "dashboard_content" }, class: "group flex gap-x-3 rounded-md bg-slate-50 p-2 text-sm leading-6 font-semibold text-orange-600 mt-2" do %>
+                  <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                  </svg>
+                  Subscription & Usage
+                <% end %>
+              </li>
+            </ul>
+          </li>
+
+          <%# My Cards List %>
+          <li>
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-semibold leading-6 text-slate-400">Your Cards</div>
+              <%= link_to new_user_card_path, data: { turbo_frame: "dashboard_content" }, class: "text-slate-400 hover:text-orange-500 transition-colors" do %>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+              <% end %>
+            </div>
+            
+            <ul role="list" class="-mx-2 mt-2 space-y-1" id="sidebar_user_cards">
+              <% @user_cards.each do |user_card| %>
+                <%= render "dashboards/sidebar_card", user_card: user_card %>
+              <% end %>
+            </ul>
+          </li>
+
+        </ul>
+      </nav>
+    </aside>
+
+    <%# Main Content Area %>
+    <main class="flex-1 overflow-y-auto bg-slate-50">
+      <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+        <%= turbo_frame_tag "dashboard_content" do %>
+          <%# Default state when landing on dashboard %>
+          <% if @user_cards.any? %>
+            <%= render "recommendations/form" %>
+          <% else %>
+            <div class="text-center rounded-2xl bg-white border border-slate-100 shadow-sm p-12">
+              <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
+                 <svg class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                 </svg>
+              </div>
+              <h2 class="mt-4 text-xl font-bold text-slate-900">Welcome to CheckCred</h2>
+              <p class="mt-2 text-sm text-slate-500">Add a credit card to your wallet to start getting AI-powered reward recommendations.</p>
+              <div class="mt-8">
+                <%= link_to new_user_card_path, data: { turbo_frame: "dashboard_content" }, class: "inline-flex items-center rounded-md bg-orange-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600" do %>
+                  <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                  </svg>
+                  Add Your First Card
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </main>
+
+  </div>
+</div>

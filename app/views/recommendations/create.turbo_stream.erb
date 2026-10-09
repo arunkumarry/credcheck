@@ -1,0 +1,103 @@
+<%= turbo_stream.replace "recommendation_result" do %>
+  <%= turbo_frame_tag "recommendation_result" do %>
+    <div class="bg-white shadow rounded-lg p-6 animate-fade-in-up">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Recommendation for <%= "₹#{@amount}" %> on <%= @category %></h2>
+      
+      <% if @error.present? %>
+        <div class="bg-red-50 border-l-4 border-red-400 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-red-700">
+                <%= @error %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-5">
+          <%# binding.pry %>
+          <% @recommendation.each do |rec| %>
+            <%# Handle both snake_case and camelCase for resilience %>
+            <% card_name = rec["card_name"].gsub("_", " ") || rec["cardName"] %>
+            <% reward_amount = rec["reward_amount"] || rec["rewardAmount"] %>
+            <% rewards_text = rec["rewards"] || rec["rewardsText"] %>
+            <% reasoning = rec["reasoning"] || rec["analysis"] %>
+            <% recommended = (rec["recommended"].to_s == "true") || (rec["recommended"] == true) %>
+
+            <div class="relative flex flex-col rounded-2xl p-3 overflow-hidden border <%= recommended ? 'border-orange-300 ring-2 ring-orange-300' : 'border-gray-200' %> bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+
+              <%# Top gradient header band %>
+              <div class="<%= recommended ? 'bg-gradient-to-r from-orange-400 to-yellow-400' : 'bg-gradient-to-r from-gray-100 to-gray-200' %> px-5 py-4 flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-base font-bold <%= recommended ? 'text-white' : 'text-gray-800' %> leading-snug mt-0.5"><%= card_name %></h3>
+                </div>
+
+                <% if recommended %>
+                  <%# Golden star with gradient fill using linearGradient %>
+                  <div title="Best Recommended Card" class="shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-8 w-8 drop-shadow">
+                      <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                        </linearGradient>
+                      </defs>
+                      <path fill="url(#goldGrad)" stroke="#d97706" stroke-width="0.5"
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+
+              <%# Card body %>
+              <div class="flex flex-col gap-3 p-5 flex-1">
+                <% if recommended %>
+                  <span class="self-start text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200 rounded-full px-3 py-0.5 tracking-wide">⭐ Best Option</span>
+                <% end %>
+
+                <div class="bg-orange-50/50 border border-orange-100 rounded-xl p-4">
+                  <p class="text-[10px] uppercase font-bold text-orange-400 tracking-wider mb-1">Estimated Rewards</p>
+                  <p class="text-2xl font-black text-orange-900">₹<%= reward_amount %></p>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="flex items-start gap-2">
+                    <div class="mt-1 shrink-0 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    <p class="text-sm font-medium text-gray-700"><%= rewards_text %></p>
+                  </div>
+                  <p class="text-xs text-gray-500 leading-relaxed italic"><%= reasoning %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @citations.present? %>
+          <div class="mt-6 border-t border-gray-100 pt-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-2.5 py-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                Live from SerpApi · <%= Time.current.strftime("%d %b %Y, %I:%M %p") %>
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-400 mb-2">Prices and offers above were pulled live from the web for this purchase.</p>
+            <ol class="space-y-1">
+              <% @citations.each do |c| %>
+                <li class="text-xs text-gray-500">
+                  <span class="font-semibold text-gray-600"><%= c[:cite] %></span>
+                  <%= link_to c[:title].to_s.truncate(90), c[:link], target: "_blank", rel: "noopener", class: "text-indigo-600 hover:underline" %>
+                  <span class="text-gray-400">— <%= c[:source] %></span>
+                </li>
+              <% end %>
+            </ol>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

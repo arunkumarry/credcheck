@@ -1,0 +1,2 @@
+class DocumentEmbedding < ApplicationRecord
+end

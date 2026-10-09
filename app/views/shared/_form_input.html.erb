@@ -1,0 +1,24 @@
+<%# locals: (form:, attribute:, type: :text_field, label_text: nil, placeholder: nil, required: false, autofocus: false, autocomplete: nil, maxlength: nil, value: nil) %>
+
+<div class="space-y-1">
+  <%= form.label attribute, label_text || attribute.to_s.humanize, class: "block text-sm font-medium text-slate-700" %>
+  <div class="mt-1">
+    <% options = {
+         class: "block w-full appearance-none rounded-md border border-slate-200 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 sm:text-sm shadow-sm",
+         placeholder: placeholder,
+         required: required,
+         autofocus: autofocus,
+         autocomplete: autocomplete,
+         maxlength: maxlength,
+         value: value
+       }.compact %>
+    
+    <% if type == :email_field %>
+      <%= form.email_field attribute, options %>
+    <% elsif type == :password_field %>
+      <%= form.password_field attribute, options %>
+    <% else %>
+      <%= form.text_field attribute, options %>
+    <% end %>
+  </div>
+</div>

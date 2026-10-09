@@ -1,0 +1,48 @@
+<div class="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">Sign in to your account</h2>
+    <p class="mt-2 text-center text-sm text-slate-600">
+      Or
+      <%= link_to "create a new account", new_registration_path, class: "font-medium text-orange-500 hover:text-orange-400" %>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-slate-100">
+      <%= form_with url: session_path, class: "space-y-6" do |form| %>
+        <%= render "shared/form_input", 
+              form: form, 
+              attribute: :email_address, 
+              type: :email_field, 
+              label_text: "Email address",
+              required: true, 
+              autofocus: true, 
+              autocomplete: "username", 
+              value: params[:email_address] %>
+
+        <%= render "shared/form_input", 
+              form: form, 
+              attribute: :password, 
+              type: :password_field, 
+              label_text: "Password",
+              required: true, 
+              autocomplete: "current-password", 
+              maxlength: 72 %>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <%# Checkbox could be added here later %>
+          </div>
+
+          <div class="text-sm">
+            <%= link_to "Forgot your password?", new_password_path, class: "font-medium text-slate-600 hover:text-orange-500 transition-colors" %>
+          </div>
+        </div>
+
+        <div>
+          <%= render "shared/submit_button", form: form, text: "Sign in" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
