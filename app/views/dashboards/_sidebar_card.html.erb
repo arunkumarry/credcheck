@@ -1,0 +1,8 @@
+<li id="<%= dom_id(user_card, :sidebar) %>">
+  <%= link_to user_card_path(user_card), data: { turbo_frame: "dashboard_content" }, class: "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-slate-700 hover:bg-slate-50 hover:text-orange-600" do %>
+    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-[0.625rem] font-medium text-slate-400 group-hover:border-orange-600 group-hover:text-orange-600">
+      <%= user_card.card.name[0] %>
+    </span>
+    <span class="truncate"><%= user_card.card.name %></span>
+  <% end %>
+</li>

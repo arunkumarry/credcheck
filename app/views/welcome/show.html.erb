@@ -1,0 +1,348 @@
+<% @page_title = "CheckCred | Maximize Reward Points" %>
+
+<div class="bg-slate-50 min-h-screen font-sans">
+  
+  <%# Navigation Header %>
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex-shrink-0 flex items-center">
+          <%= link_to root_path, class: "flex items-center gap-2 group" do %>
+            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center transform group-hover:scale-105 transition-transform">
+              <span class="text-white font-bold text-xl">C</span>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-slate-900">CheckCred</span>
+          <% end %>
+        </div>
+        <div class="hidden md:flex space-x-8">
+          <a href="#how-it-works" class="text-slate-600 hover:text-slate-900 px-3 py-2 text-sm font-medium transition-colors">How it Works</a>
+          <a href="#extension" class="text-slate-600 hover:text-slate-900 px-3 py-2 text-sm font-medium transition-colors">Extension</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <% if Current.user %>
+            <%= link_to "Dashboard", dashboard_path, class: "text-slate-600 hover:text-orange-500 font-medium text-sm transition-colors" %>
+            <%= button_to "Sign out", session_path, method: :delete, class: "bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" %>
+          <% else %>
+            <%= link_to "Sign in", new_session_path, class: "text-slate-600 hover:text-orange-500 font-medium text-sm transition-colors" %>
+            <%= link_to "Get Started", new_registration_path, class: "bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <%# Hero Section %>
+  <main class="pt-16 pb-24 sm:pt-24 sm:pb-32 lg:pb-40 overflow-hidden relative">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-100/40 via-slate-50 to-slate-50"></div>
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 relative">
+      <div class="mx-auto max-w-2xl text-center">
+        <div class="mb-8 flex justify-center">
+          <span class="relative rounded-full px-3 py-1 text-sm leading-6 text-slate-600 ring-1 ring-slate-900/10 hover:ring-slate-900/20 bg-white/50 backdrop-blur-sm">
+             Your Personal Credit Card AI Agent.
+          </span>
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl mb-6 leading-tight">
+          Maximize Returns on <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Every Swipe</span>.
+        </h1>
+        <p class="mt-6 text-lg tracking-tight text-slate-600 sm:text-xl leading-relaxed">
+          Don't guess which card to use. Our AI instantly analyzes your wallet and the purchase you're about to make, telling you exactly which card gives you the most reward points or cashback.
+        </p>
+        <div class="mt-10 relative z-10">
+          <% if Current.user %>
+            <%= render "recommendations/form" %>
+
+            <% if @transactions.any? %>
+              <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                  <h3 class="text-lg font-bold text-slate-900">Recent Activity</h3>
+                  <%= link_to "View All", transactions_path, class: "text-sm font-medium text-orange-600 hover:text-orange-700" %>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                  <% @transactions.each do |transaction| %>
+                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center justify-between hover:border-orange-200 transition-colors">
+                      <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                        </div>
+                        <div class="text-left">
+                          <p class="text-sm font-bold text-slate-900"><%= transaction.category %></p>
+                          <p class="text-xs text-slate-500"><%= transaction.created_at.strftime("%b %d, %Y") %></p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-slate-900">₹<%= number_with_delimiter(transaction.amount) %></p>
+                        <p class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Saved ₹<%= number_with_delimiter(transaction.saved_amount.to_f.round(2)) %></p>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+          <% else %>
+            <div class="flex items-center justify-center gap-x-6">
+              <%= link_to "Start Optimizing Free", new_registration_path, class: "rounded-md bg-orange-500 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 transition-all transform hover:-translate-y-0.5" %>
+              <%= link_to "See how it works <span aria-hidden='true'>→</span>".html_safe, "#how-it-works", class: "text-base font-semibold leading-6 text-slate-900 hover:text-orange-500 transition-colors" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%# Divider %>
+  <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+
+  <%# How It Works %>
+  <section id="how-it-works" class="py-24 sm:py-32 bg-white relative">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-base font-semibold leading-7 text-orange-500">Simplify Your Wallet</h2>
+        <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">How CheckCred Works</p>
+        <p class="mt-6 text-lg leading-8 text-slate-600">Three simple steps to make sure you never leave money or points on the table again.</p>
+      </div>
+
+      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:max-w-none">
+        <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+          
+          <%# Step 1 %>
+          <div class="flex flex-col items-center text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-colors"></div>
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-orange-100 text-orange-600 shadow-sm ring-1 ring-orange-200">
+               <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+               </svg>
+            </div>
+            <dt class="text-xl font-semibold leading-7 text-slate-900 z-10">
+              Step 1: Add Your Cards
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600 z-10">
+              <p class="flex-auto">Tell CheckCred which credit cards you currently hold in your physical or digital wallet. We securely map their reward structures.</p>
+            </dd>
+          </div>
+
+          <%# Step 2 %>
+          <div class="flex flex-col items-center text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+             <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-colors"></div>
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-slate-800 text-white shadow-sm ring-1 ring-slate-900">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+              </svg>
+            </div>
+            <dt class="text-xl font-semibold leading-7 text-slate-900 z-10">
+              Step 2: Enter Payment Details
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600 z-10">
+              <p class="flex-auto">About to make a payment? Input the category (e.g., Dining, Travel) or the exact merchant before you check out.</p>
+            </dd>
+          </div>
+
+          <%# Step 3 %>
+          <div class="flex flex-col items-center text-center p-6 rounded-2xl bg-orange-50 border border-orange-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+             <div class="absolute top-0 left-0 w-32 h-32 bg-orange-400/10 rounded-full blur-3xl transition-colors"></div>
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-orange-500 text-white shadow-md ring-1 ring-orange-600">
+               <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+               </svg>
+            </div>
+            <dt class="text-xl font-semibold leading-7 text-slate-900 z-10">
+              Step 3: Get the Best Pick
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600 z-10">
+              <p class="flex-auto text-slate-700">The AI instantly responds with the card from your wallet that guarantees the maximum reward yield or highest cashback.</p>
+            </dd>
+          </div>
+
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <%# Pricing Section %>
+  <section id="pricing" class="py-24 sm:py-32 bg-white relative">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-base font-semibold leading-7 text-orange-500">Pricing</h2>
+        <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Choose the plan that fits your wallet</p>
+      </div>
+      
+      <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2 lg:gap-x-8">
+        <%# Free Tier %>
+        <div class="flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 ring-slate-200 xl:p-10 hover:ring-orange-500 transition-all">
+          <div>
+            <h3 class="text-lg font-semibold leading-8 text-slate-900">Free</h3>
+            <p class="mt-4 text-sm leading-6 text-slate-600">Perfect for casual shoppers starting their optimization journey.</p>
+            <p class="mt-6 flex items-baseline gap-x-1">
+              <span class="text-4xl font-bold tracking-tight text-slate-900">₹0</span>
+              <span class="text-sm font-semibold leading-6 text-slate-600">/month</span>
+            </p>
+            <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-slate-600">
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Up to 3 Active Cards
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                10 Recommendations / week
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Chrome Extension Access
+              </li>
+            </ul>
+          </div>
+          <%= link_to "Get Started", new_registration_path, class: "mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 text-orange-600 ring-1 ring-inset ring-orange-200 hover:ring-orange-300 transition-all" %>
+        </div>
+
+        <%# Premium Tier %>
+        <div class="flex flex-col justify-between rounded-3xl bg-slate-900 p-8 ring-1 ring-slate-900 xl:p-10 shadow-2xl scale-105 relative z-10">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Most Popular</div>
+          <div>
+            <h3 class="text-lg font-semibold leading-8 text-white">Premium</h3>
+            <p class="mt-4 text-sm leading-6 text-slate-300">For the ultimate power user who wants to maximize every single rupee.</p>
+            <p class="mt-6 flex items-baseline gap-x-1">
+              <span class="text-4xl font-bold tracking-tight text-white">₹499</span>
+              <span class="text-sm font-semibold leading-6 text-slate-400">/year</span>
+            </p>
+            <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-slate-300">
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Unlimited Active Cards
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Unlimited Recommendations
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Priority AI Processing
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-orange-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                Advanced Reward Analytics
+              </li>
+            </ul>
+          </div>
+          <%= link_to "Upgrade Now", "#", class: "mt-8 block rounded-md bg-orange-500 px-3 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 transition-all" %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# Extension Section %>
+  <section id="extension" class="py-24 sm:py-32 bg-slate-50 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
+      <div class="absolute top-1/4 right-0 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 relative">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-base font-semibold leading-7 text-orange-600">Automate Your Savings</h2>
+          <p class="mt-2 text-4xl font-bold tracking-tight text-slate-900">The CheckCred <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">Chrome Extension</span></p>
+          <p class="mt-6 text-lg leading-8 text-slate-600">
+            Never manually calculate rewards again. Our Chrome Extension lives in your browser and activates automatically whenever you hit a checkout page.
+          </p>
+          
+          <ul class="mt-10 space-y-4">
+            <li class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center mt-1">
+                <svg class="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <p class="text-slate-700 font-medium">Auto-scrapes amount and category from the page.</p>
+            </li>
+            <li class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center mt-1">
+                <svg class="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <p class="text-slate-700 font-medium">Detects available coupon codes instantly.</p>
+            </li>
+            <li class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center mt-1">
+                <svg class="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <p class="text-slate-700 font-medium">One-click recommendation without leaving the site.</p>
+            </li>
+          </ul>
+
+          <div class="mt-10">
+            <%= link_to "#", class: "inline-flex items-center gap-2 rounded-lg bg-slate-900 px-6 py-3.5 text-base font-semibold text-white shadow-xl hover:bg-slate-800 transition-all transform hover:-translate-y-0.5" do %>
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,18c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6 S15.31,18,12,18z M12,8c-2.21,0-4,1.79-4,4s1.79,4,4,4s4-1.79,4-4S14.21,8,12,8z"/>
+              </svg>
+              Add to Chrome — It's Free
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="relative">
+          <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform lg:rotate-2 hover:rotate-0 transition-transform duration-500">
+             <div class="bg-slate-100 px-4 py-2 flex items-center gap-2 border-b border-slate-200">
+                <div class="flex gap-1.5">
+                  <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                </div>
+                <div class="flex-1 bg-white rounded text-[10px] text-slate-400 px-2 py-0.5 mx-4 border border-slate-200 truncate">
+                  makemytrip.com/checkout
+                </div>
+             </div>
+             <div class="p-8 bg-white relative">
+                <%# Mocking the extension popup in the UI %>
+                <div class="w-64 mx-auto bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden ring-4 ring-orange-500/10">
+                   <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center">
+                      <span class="text-xs font-bold uppercase tracking-widest">CheckCred</span>
+                      <div class="w-4 h-4 rounded-full bg-orange-500 animate-pulse"></div>
+                   </div>
+                   <div class="p-4 space-y-3">
+                      <div class="space-y-1">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase">Amount</div>
+                        <div class="text-sm font-semibold">₹1,24,500</div>
+                      </div>
+                      <div class="p-3 bg-orange-50 rounded-lg border border-orange-100">
+                         <div class="text-[9px] font-bold text-orange-500 uppercase">Best Card</div>
+                         <div class="text-xs font-bold text-slate-900 mt-0.5">HDFC Diners Privilege</div>
+                         <div class="text-[14px] font-bold text-orange-600 mt-1">₹4,250 rewards</div>
+                      </div>
+                      <button class="w-full bg-slate-900 text-white text-[10px] font-bold py-2 rounded-md uppercase tracking-wider">Use This Card</button>
+                   </div>
+                </div>
+                
+                <div class="mt-8 space-y-4 opacity-20 pointer-events-none">
+                   <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+                   <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                   <div class="h-32 bg-slate-50 rounded"></div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# Footer %>
+  <footer class="bg-white border-t border-slate-200">
+    <div class="mx-auto max-w-7xl overflow-hidden px-6 py-12 sm:py-16 lg:px-8">
+      <nav class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12" aria-label="Footer">
+        <div class="pb-6">
+          <a href="#" class="text-sm leading-6 text-slate-600 hover:text-slate-900">About</a>
+        </div>
+        <div class="pb-6">
+          <a href="#" class="text-sm leading-6 text-slate-600 hover:text-slate-900">Privacy Policy</a>
+        </div>
+        <div class="pb-6">
+          <a href="#" class="text-sm leading-6 text-slate-600 hover:text-slate-900">Terms of Service</a>
+        </div>
+      </nav>
+      <p class="mt-10 text-center text-xs leading-5 text-slate-500">&copy; <%= Time.current.year %> CheckCred. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div>

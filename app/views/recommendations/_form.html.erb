@@ -1,0 +1,34 @@
+<div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden mb-12">
+  <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
+    <h3 class="text-white font-bold">Quick Recommendation</h3>
+    <div class="flex gap-4">
+      <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Cards: <%= Current.user.user_cards.active.count %>/<%= Current.user.active_cards_limit %></span>
+      <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Weekly: <%= Current.user.recommendations_this_week %>/<%= Current.user.weekly_recommendations_limit %></span>
+    </div>
+  </div>
+  
+  <div class="flex flex-col gap-5 p-8">
+    <%= form_with url: recommendation_path, method: :post, class: "grid grid-cols-1 md:grid-cols-3 gap-6" do |f| %>
+      <div class="text-left">
+        <%= f.label :category, "Where are you spending?", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+        <%= f.select :category, 
+            ["Shopping", "Dining", "Travel", "Fuel", "Groceries", "Entertainment", "Utilities", "Other"],
+            { prompt: "Select category" },
+            class: "block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-900 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+      </div>
+      
+      <div class="text-left">
+        <%= f.label :amount, "Amount (₹)", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+        <%= f.number_field :amount, step: 0.01, placeholder: "e.g. 1200", class: "block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-900 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+      </div>
+      
+      <div class="flex items-end">
+        <%= f.submit "Get Best Card", class: "w-full rounded-lg bg-orange-500 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5" %>
+      </div>
+    <% end %>
+
+    <div id="recommendation_result" class="mt-8">
+      <%# Recommendation results will appear here via Turbo %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,3 @@
+<%= turbo_stream.append "sidebar_user_cards", partial: "dashboards/sidebar_card", locals: { user_card: @user_card } %>
+<%= turbo_stream.update "dashboard_content", template: "user_cards/show" %>
+<%= turbo_stream.update "flash_messages", partial: "shared/flash" %>

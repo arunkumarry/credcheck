@@ -1,0 +1,83 @@
+# For more options, see https://kamal-deploy.org/docs/configuration/
+
+service: credcheck
+
+# Name of the image to be built and pushed to your registry
+image: arunkumarry/credcheck
+
+# SSH connection options (defaults to root if not specified)
+ssh:
+  user: arunsdev
+
+# Deploy to these servers.
+servers:
+  web:
+    - 192.168.1.19 # REPLACE with your Ubuntu Server IP
+  job:
+    hosts:
+      - 192.168.1.19 # REPLACE with your Ubuntu Server IP
+    cmd: bundle exec sidekiq
+
+# Enable SSL termination with Traefik
+# Disabled for IP-based deployment (Let's Encrypt requires a domain)
+proxy:
+  # ssl: true 
+  # host: credcheck.com
+  app_port: 80
+
+# Credentials for your image host.
+registry:
+  # Specify the registry server, if you're not using Docker Hub
+  server: ghcr.io
+  username: arunkumarry
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Inject proxy-specific env vars into the app container
+env:
+  clear:
+    PORT: 80
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: true
+    DATABASE_HOST: 192.168.1.19
+  secret:
+    - SECRET_KEY_BASE
+    - GEMINI_API_KEY
+    - ANTHROPIC_API_KEY
+    - SERP_API_KEY
+    - CREDCHECK_DATABASE_PASSWORD
+
+# Define database and redis as accessories
+accessories:
+  db:
+    image: pgvector/pgvector:pg16
+    host: 192.168.1.19
+    port: 5432
+    env:
+      clear:
+        POSTGRES_USER: credcheck
+        POSTGRES_DB: credcheck_production
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    host: 192.168.1.19
+    port: 6379
+    directories:
+      - data:/data
+
+# Asset pipeline configuration
+asset_path: /rails/public/assets
+
+# Configure builder architecture (mandatory in Kamal 2)
+builder:
+  arch: amd64
+  remote: ssh://arunsdev@192.168.1.19
+  local: false
+
+# Use a different bundle install command
+# builder:
+#   args:
+#     BUNDLE_WITHOUT: "development:test"

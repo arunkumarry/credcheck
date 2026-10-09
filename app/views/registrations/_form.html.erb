@@ -1,0 +1,49 @@
+<%= form_with url: registration_path, scope: :user, class: "space-y-6" do |form| %>
+  <%= render "shared/form_input", 
+        form: form, 
+        attribute: :first_name, 
+        label_text: "First name",
+        required: true, 
+        autocomplete: "given-name", 
+        value: params[:first_name] %>
+
+  <%= render "shared/form_input", 
+        form: form, 
+        attribute: :last_name, 
+        label_text: "Last name",
+        required: true, 
+        autocomplete: "family-name", 
+        value: params[:last_name] %>
+
+  <%= render "shared/form_input", 
+        form: form, 
+        attribute: :email_address, 
+        type: :email_field, 
+        label_text: "Email address",
+        required: true, 
+        autofocus: true, 
+        autocomplete: "email", 
+        value: params[:email_address] %>
+
+  <%= render "shared/form_input", 
+        form: form, 
+        attribute: :password, 
+        type: :password_field, 
+        label_text: "Password",
+        required: true, 
+        autocomplete: "new-password", 
+        maxlength: 72 %>
+
+  <%= render "shared/form_input", 
+        form: form, 
+        attribute: :password_confirmation, 
+        type: :password_field, 
+        label_text: "Confirm password",
+        required: true, 
+        autocomplete: "new-password", 
+        maxlength: 72 %>
+
+  <div>
+    <%= render "shared/submit_button", form: form, text: "Sign up" %>
+  </div>
+<% end %>

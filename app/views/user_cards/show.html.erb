@@ -1,0 +1,39 @@
+<%= turbo_frame_tag "dashboard_content" do %>
+  <div class="bg-white shadow-sm ring-1 ring-slate-200 sm:rounded-lg overflow-hidden max-w-2xl mx-auto">
+    <div class="border-b border-slate-200 bg-slate-800 px-4 py-5 sm:px-6 flex justify-between items-center">
+      <h3 class="text-base font-semibold leading-6 text-white">Card Details</h3>
+      <%= form_with model: @user_card, data: { controller: "toggle" } do |f| %>
+        <label class="relative inline-flex items-center cursor-pointer group">
+          <%= f.check_box :status, 
+              { class: "sr-only peer", data: { action: "change->toggle#submit" } },
+              "active", "inactive" %>
+          
+          <div class="w-10 h-5 bg-slate-400/20 rounded-full peer peer-checked:bg-green-500 transition-all duration-200 ease-in-out after:content-[''] after:absolute after:top-[2.5px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+          
+          <span class="ml-3 text-[10px] font-bold uppercase tracking-widest <%= @user_card.active? ? 'text-green-400' : 'text-slate-400' %>">
+            <%= @user_card.status %>
+          </span>
+        </label>
+      <% end %>
+    </div>
+    
+    <div class="px-4 py-5 sm:p-6 text-center">
+      <div class="mx-auto h-24 w-32 flex-none rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg flex items-center justify-center relative overflow-hidden ring-1 ring-slate-900/10 mb-6 group">
+        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity transform -skew-x-12 translate-x-full group-hover:translate-x-0 duration-1000"></div>
+        <span class="text-white text-lg font-bold uppercase tracking-widest"><%= @user_card.card.name[0..2] %></span>
+      </div>
+
+      <h2 class="text-2xl font-bold leading-7 text-slate-900 sm:truncate sm:tracking-tight"><%= @user_card.card.name %></h2>
+      <p class="mt-2 font-medium text-slate-500"><%= @user_card.card.bank&.name || "Unknown Bank" %></p>
+      
+      <div class="mt-10 border-t border-slate-100 pt-6">
+        <h4 class="text-sm font-semibold text-slate-900 text-left mb-4">Manage Card</h4>
+        <div class="flex justify-start">
+          <%= button_to user_card_path(@user_card), method: :delete, class: "rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-colors", form: { data: { turbo_confirm: "Are you sure you want to remove this card?" } } do %>
+            Remove from Wallet
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

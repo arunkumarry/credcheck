@@ -1,0 +1,54 @@
+<%= turbo_frame_tag "dashboard_content" do %>
+  <div class="max-w-2xl mx-auto py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Which card should I use?</h1>
+      <p class="mt-2 text-sm text-gray-600">Enter your purchase and CredCheck checks <span class="font-medium text-indigo-600">live prices and today's offers</span> to pick the best card in your wallet.</p>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <%= form_with url: recommendation_path, method: :post, data: { turbo_frame: "recommendation_result" } do |f| %>
+        <div class="space-y-6">
+          <div>
+            <%= f.label :category, "Purchase Category", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.text_field :category, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., Flight booking, Dining, Groceries", required: true %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :merchant, "Merchant / Platform", class: "block text-sm font-medium text-gray-700" %>
+            <span class="text-xs text-gray-400">optional — unlocks live offer search</span>
+            <div class="mt-1">
+              <%= f.text_field :merchant, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., Amazon, Zomato, MakeMyTrip" %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :product, "Product (for live price check)", class: "block text-sm font-medium text-gray-700" %>
+            <span class="text-xs text-gray-400">optional — pulls live Google Shopping prices</span>
+            <div class="mt-1">
+              <%= f.text_field :product, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., iPhone 15 128GB" %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :amount, "Purchase Amount", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.number_field :amount, step: "0.01", min: "0", class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., 20000", required: true %>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <%= f.submit "Get Recommendation", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-8">
+      <%= turbo_frame_tag "recommendation_result" do %>
+        <%# Results will be loaded here %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

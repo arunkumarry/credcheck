@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "dashboard_content" do %>
+  <%= render template: "user_cards/show" %>
+<% end %>
+
+<%= turbo_stream.update "flash_messages" do %>
+  <%= render partial: "shared/flash" %>
+<% end %>

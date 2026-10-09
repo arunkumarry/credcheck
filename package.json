@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "build:extension": "vite build --config vite.extension.config.mts --mode production && cp checkcred-extension/manifest.json checkcred-extension/popup.html checkcred-extension/styles.css checkcred-extension/background.js dist-extension/",
+    "build:extension:dev": "vite build --config vite.extension.config.mts --mode development && cp checkcred-extension/manifest.json checkcred-extension/popup.html checkcred-extension/styles.css checkcred-extension/background.js dist-extension/"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@types/node": "^25.6.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "3",
+    "vite": "^5.0.0",
+    "vite-plugin-ruby": "^5.1.0"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "3.2.2",
+    "@hotwired/turbo-rails": "7.3.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "*",
+    "@rollup/rollup-darwin-arm64": "*"
+  }
+}
