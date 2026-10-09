@@ -1,7 +1,7 @@
 require "digest"
 
 class RagAgent
-  attr_reader :citations
+  attr_reader :citations, :steps
 
   def initialize(user, category, amount, coupon_codes: [], merchant: nil, product: nil)
     @user = user
@@ -11,6 +11,7 @@ class RagAgent
     @merchant = merchant.presence
     @product = product.presence
     @citations = []
+    @steps = []
   end
 
   def call
@@ -19,20 +20,52 @@ class RagAgent
     # Live offers refresh daily (day is in the cache key), so a 12h TTL keeps
     # repeat lookups cheap within a day while still re-pulling SerpApi each day.
     payload = Rails.cache.fetch(cache_key, expires_in: 12.hours) do
-      context = fetch_context
-      result, tokens = build_prompt(context)
-      { result: result, tokens: tokens, citations: @citations }
+      run_agent
     end
     @citations = payload[:citations] || []
+    @steps = payload[:steps] || []
     [ payload[:result], payload[:tokens] ]
   rescue => e
     Rails.logger.error("RagAgent caching error: #{e.message}")
-    # Fallback to no-cache if caching fails for any reason
-    context = fetch_context
-    build_prompt(context)
+    payload = run_agent
+    @citations = payload[:citations] || []
+    @steps = payload[:steps] || []
+    [ payload[:result], payload[:tokens] ]
   end
 
   private
+
+  # Primary engine: the tool-calling PurchaseCopilot agent, which decides for
+  # itself which live SerpApi searches to run. Falls back to the legacy
+  # single-prompt pipeline only if the agent yields nothing usable.
+  def run_agent
+    result = Agents::PurchaseCopilot.new(
+      user: @user, category: @category, amount: @amount,
+      merchant: @merchant, product: @product
+    ).call
+
+    if result.recommendations.present?
+      trace = result.trace
+      return {
+        result: result.recommendations,
+        tokens: result.tokens,
+        citations: trace&.citations || [],
+        steps: trace&.steps || []
+      }
+    end
+
+    Rails.logger.warn("PurchaseCopilot returned no recommendations; using legacy pipeline.")
+    legacy_run
+  rescue => e
+    Rails.logger.error("PurchaseCopilot failed: #{e.class} #{e.message}; using legacy pipeline.")
+    legacy_run
+  end
+
+  def legacy_run
+    context = fetch_context
+    result, tokens = build_prompt(context)
+    { result: result, tokens: tokens, citations: @citations, steps: [] }
+  end
 
   def cache_key
     active_user_cards = @user.user_cards.active.order(:id)

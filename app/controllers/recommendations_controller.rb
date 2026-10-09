@@ -13,6 +13,7 @@ class RecommendationsController < ApplicationController
         agent = RagAgent.new(Current.user, @category, @amount, merchant: @merchant, product: @product)
         @recommendation, tokens = agent.call
         @citations = agent.citations
+        @steps = agent.steps
         save_recommendation(Current.user, @category, @amount, @recommendation, tokens)
       else
         @error = "You have reached your weekly recommendation limit (#{Current.user.weekly_recommendations_limit}). Upgrade to Premium for unlimited access!"

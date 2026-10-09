@@ -10,6 +10,7 @@ module LiveSearch
   class SerpApiClient
     BASE_URI = "https://serpapi.com/search".freeze
     DEFAULT_TIMEOUT = 20
+    MAX_ATTEMPTS = 2
 
     class ConfigurationError < StandardError; end
 
@@ -75,25 +76,36 @@ module LiveSearch
     def request(engine:, **params)
       raise ConfigurationError, "SERP_API_KEY is not set" if @api_key.blank?
 
-      response = HTTParty.get(
-        BASE_URI,
-        query: { engine: engine, api_key: @api_key, gl: @gl, hl: @hl }.merge(params).compact,
-        headers: { "User-Agent" => "Mozilla/5.0 (CredCheck)" },
-        timeout: DEFAULT_TIMEOUT
-      )
+      attempts = 0
+      begin
+        attempts += 1
+        response = HTTParty.get(
+          BASE_URI,
+          query: { engine: engine, api_key: @api_key, gl: @gl, hl: @hl }.merge(params).compact,
+          headers: { "User-Agent" => "Mozilla/5.0 (CredCheck)" },
+          timeout: DEFAULT_TIMEOUT
+        )
 
-      unless response.success?
-        Rails.logger.error("SerpApiClient #{engine} HTTP #{response.code}: #{response.body&.truncate(200)}")
-        return {}
+        unless response.success?
+          Rails.logger.error("SerpApiClient #{engine} HTTP #{response.code}: #{response.body&.truncate(200)}")
+          return {}
+        end
+
+        parsed = response.parsed_response
+        if parsed.is_a?(Hash) && parsed["error"].present?
+          Rails.logger.error("SerpApiClient #{engine} error: #{parsed['error']}")
+          return {}
+        end
+
+        parsed.is_a?(Hash) ? parsed : {}
+      rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error => e
+        if attempts < MAX_ATTEMPTS
+          Rails.logger.warn("SerpApiClient #{engine} timeout (attempt #{attempts}), retrying...")
+          retry
+        end
+        Rails.logger.error("SerpApiClient #{engine} timed out after #{attempts} attempts: #{e.message}")
+        {}
       end
-
-      parsed = response.parsed_response
-      if parsed.is_a?(Hash) && parsed["error"].present?
-        Rails.logger.error("SerpApiClient #{engine} error: #{parsed['error']}")
-        return {}
-      end
-
-      parsed.is_a?(Hash) ? parsed : {}
     rescue StandardError => e
       Rails.logger.error("SerpApiClient #{engine} request failed: #{e.class} #{e.message}")
       {}
