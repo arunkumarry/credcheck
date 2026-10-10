@@ -127,7 +127,7 @@ bin/rails server
    - Category: `Electronics`
    - Merchant: `Amazon`
    - Product: `iPhone 15 128GB`
-   - Amount: `60000`
+   - Amount: *(leave blank to auto-detect the live price, or enter e.g. `60000`)*
 4. The agent runs its live searches (~1–2 minutes the first time; same-day
    repeat lookups are cached and instant) and returns a ranked recommendation
    with its search trace and SerpApi citations.

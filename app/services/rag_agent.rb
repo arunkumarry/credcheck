@@ -1,17 +1,18 @@
 require "digest"
 
 class RagAgent
-  attr_reader :citations, :steps
+  attr_reader :citations, :steps, :resolved_amount
 
   def initialize(user, category, amount, coupon_codes: [], merchant: nil, product: nil)
     @user = user
     @category = category
-    @amount = amount
+    @amount = amount.presence
     @coupon_codes = coupon_codes
     @merchant = merchant.presence
     @product = product.presence
     @citations = []
     @steps = []
+    @resolved_amount = @amount
   end
 
   def call
@@ -24,6 +25,7 @@ class RagAgent
     end
     @citations = payload[:citations] || []
     @steps = payload[:steps] || []
+    @resolved_amount = payload[:amount] || @amount
     # Normalize on read (not inside the cache) so even already-cached results
     # get a consistent single best card without a fresh SerpApi pull.
     [ normalize(payload[:result]), payload[:tokens] ]
@@ -32,6 +34,7 @@ class RagAgent
     payload = run_agent
     @citations = payload[:citations] || []
     @steps = payload[:steps] || []
+    @resolved_amount = payload[:amount] || @amount
     [ normalize(payload[:result]), payload[:tokens] ]
   end
 
@@ -52,7 +55,8 @@ class RagAgent
         result: result.recommendations,
         tokens: result.tokens,
         citations: trace&.citations || [],
-        steps: trace&.steps || []
+        steps: trace&.steps || [],
+        amount: result.amount
       }
     end
 
@@ -66,7 +70,7 @@ class RagAgent
   def legacy_run
     context = fetch_context
     result, tokens = build_prompt(context)
-    { result: result, tokens: tokens, citations: @citations, steps: [] }
+    { result: result, tokens: tokens, citations: @citations, steps: [], amount: @amount }
   end
 
   # Keep the UI self-consistent: coerce reward_amount to a plain number and make
