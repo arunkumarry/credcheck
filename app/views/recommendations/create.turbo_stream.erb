@@ -79,7 +79,7 @@
 
                 <div class="bg-orange-50/50 border border-orange-100 rounded-xl p-4">
                   <p class="text-[10px] uppercase font-bold text-orange-400 tracking-wider mb-1">Estimated Rewards</p>
-                  <p class="text-2xl font-black text-orange-900">₹<%= reward_amount %></p>
+                  <p class="text-2xl font-black text-orange-900">₹<%= number_with_delimiter(reward_amount.to_f.round) %></p>
                 </div>
 
                 <div class="space-y-2">

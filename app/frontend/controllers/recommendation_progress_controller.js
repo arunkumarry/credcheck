@@ -11,19 +11,28 @@ export default class extends Controller {
     frame: { type: String, default: "recommendation_result" }
   }
 
+  // Keep the progress visible for at least this long, so even an instant
+  // (cached) response still shows the agent working instead of flashing.
+  static MIN_VISIBLE_MS = 2200
+
   connect() {
     this.onStart = this.start.bind(this)
+    this.onBeforeStream = this.holdResult.bind(this)
     this.element.addEventListener("turbo:submit-start", this.onStart)
   }
 
   disconnect() {
     this.element.removeEventListener("turbo:submit-start", this.onStart)
+    document.removeEventListener("turbo:before-stream-render", this.onBeforeStream)
     this.clearTimers()
   }
 
   start() {
     const frame = document.getElementById(this.frameValue)
     if (!frame) return
+
+    this.startedAt = Date.now()
+    document.addEventListener("turbo:before-stream-render", this.onBeforeStream)
 
     this.steps = this.buildSteps()
     frame.innerHTML = this.template(this.steps)
@@ -40,6 +49,24 @@ export default class extends Controller {
 
     this.advance(durations)
     this.fillBar()
+  }
+
+  // Delay the incoming result render until the progress has been visible for
+  // MIN_VISIBLE_MS, so a fast/cached response doesn't erase the animation.
+  holdResult(event) {
+    document.removeEventListener("turbo:before-stream-render", this.onBeforeStream)
+    const elapsed = Date.now() - (this.startedAt || 0)
+    const wait = this.constructor.MIN_VISIBLE_MS - elapsed
+    if (wait <= 0) return
+
+    const originalRender = event.detail.render
+    event.detail.render = (streamElement) =>
+      new Promise((resolve) => {
+        setTimeout(async () => {
+          await originalRender(streamElement)
+          resolve()
+        }, wait)
+      })
   }
 
   advance(durations) {
