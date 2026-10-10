@@ -21,10 +21,12 @@ import { Application } from "@hotwired/stimulus"
 import BankSelectController from "../controllers/bank_select_controller"
 import ToggleController from "../controllers/toggle_controller"
 import FlashController from "../controllers/flash_controller"
+import RecommendationProgressController from "../controllers/recommendation_progress_controller"
 
 const application = Application.start()
 application.register("bank-select", BankSelectController)
 application.register("toggle", ToggleController)
 application.register("flash", FlashController)
+application.register("recommendation-progress", RecommendationProgressController)
 
 import './application.css'
