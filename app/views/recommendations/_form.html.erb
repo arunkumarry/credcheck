@@ -1,34 +1,61 @@
-<div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden mb-12">
+<% wallet_banks = Current.user.user_cards.active.includes(card: :bank).map { |uc| uc.card.bank.name }.uniq %>
+
+<div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
   <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
-    <h3 class="text-white font-bold">Quick Recommendation</h3>
+    <div>
+      <h3 class="text-white font-bold">Which card should I use?</h3>
+      <p class="text-[11px] text-slate-400 mt-0.5">Live prices &amp; today's offers from SerpApi</p>
+    </div>
     <div class="flex gap-4">
       <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Cards: <%= Current.user.user_cards.active.count %>/<%= Current.user.active_cards_limit %></span>
       <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Weekly: <%= Current.user.recommendations_this_week %>/<%= Current.user.weekly_recommendations_limit %></span>
     </div>
   </div>
-  
-  <div class="flex flex-col gap-5 p-8">
-    <%= form_with url: recommendation_path, method: :post, class: "grid grid-cols-1 md:grid-cols-3 gap-6" do |f| %>
-      <div class="text-left">
-        <%= f.label :category, "Where are you spending?", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
-        <%= f.select :category, 
-            ["Shopping", "Dining", "Travel", "Fuel", "Groceries", "Entertainment", "Utilities", "Other"],
-            { prompt: "Select category" },
-            class: "block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-900 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+
+  <div class="p-8">
+    <%= form_with url: recommendation_path, method: :post, data: {
+          turbo_frame: "recommendation_result",
+          controller: "recommendation-progress",
+          recommendation_progress_banks_value: wallet_banks.to_json,
+          recommendation_progress_frame_value: "recommendation_result"
+        } do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="text-left">
+          <%= f.label :category, "Purchase Category", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+          <%= f.text_field :category, required: true, placeholder: "e.g. Electronics, Dining, Travel",
+                class: "block w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-900 p-2.5 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+        </div>
+
+        <div class="text-left">
+          <%= f.label :merchant, "Merchant / Platform", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+          <%= f.text_field :merchant, placeholder: "e.g. Amazon, Zomato (optional)",
+                class: "block w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-900 p-2.5 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+        </div>
+
+        <div class="text-left">
+          <%= f.label :product, "Product", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+          <%= f.text_field :product, placeholder: "e.g. iPhone 15 128GB (optional)",
+                class: "block w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-900 p-2.5 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+        </div>
+
+        <div class="text-left">
+          <%= f.label :amount, "Amount (₹)", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
+          <%= f.number_field :amount, step: 0.01, min: 0, placeholder: "blank = auto-detect price",
+                class: "block w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-900 p-2.5 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
+        </div>
       </div>
-      
-      <div class="text-left">
-        <%= f.label :amount, "Amount (₹)", class: "block text-xs font-bold text-slate-500 uppercase mb-2" %>
-        <%= f.number_field :amount, step: 0.01, placeholder: "e.g. 1200", class: "block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-900 focus:ring-orange-500 focus:border-orange-500 transition-all" %>
-      </div>
-      
-      <div class="flex items-end">
-        <%= f.submit "Get Best Card", class: "w-full rounded-lg bg-orange-500 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5" %>
+
+      <p class="text-[11px] text-slate-400 mt-3">Tip: enter a product and leave amount blank — CredCheck fetches the live price and finds the best card.</p>
+
+      <div class="mt-6 flex justify-end">
+        <%= f.submit "Get Best Card", class: "rounded-lg bg-orange-500 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-orange-600 transition-all transform hover:-translate-y-0.5 cursor-pointer" %>
       </div>
     <% end %>
-
-    <div id="recommendation_result" class="mt-8">
-      <%# Recommendation results will appear here via Turbo %>
-    </div>
   </div>
+</div>
+
+<div class="mt-8">
+  <%= turbo_frame_tag "recommendation_result" do %>
+    <%# Recommendation results appear here via Turbo %>
+  <% end %>
 </div>
