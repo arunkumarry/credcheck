@@ -24,13 +24,15 @@ class RagAgent
     end
     @citations = payload[:citations] || []
     @steps = payload[:steps] || []
-    [ payload[:result], payload[:tokens] ]
+    # Normalize on read (not inside the cache) so even already-cached results
+    # get a consistent single best card without a fresh SerpApi pull.
+    [ normalize(payload[:result]), payload[:tokens] ]
   rescue => e
     Rails.logger.error("RagAgent caching error: #{e.message}")
     payload = run_agent
     @citations = payload[:citations] || []
     @steps = payload[:steps] || []
-    [ payload[:result], payload[:tokens] ]
+    [ normalize(payload[:result]), payload[:tokens] ]
   end
 
   private
@@ -65,6 +67,32 @@ class RagAgent
     context = fetch_context
     result, tokens = build_prompt(context)
     { result: result, tokens: tokens, citations: @citations, steps: [] }
+  end
+
+  # Keep the UI self-consistent: coerce reward_amount to a plain number and make
+  # the single highlighted card the one with the highest value. Without this the
+  # LLM can flag one card as "best" while another shows a bigger rupee figure.
+  def normalize(recs)
+    return recs unless recs.is_a?(Array) && recs.any?
+
+    recs.each do |r|
+      next unless r.is_a?(Hash)
+
+      r["reward_amount"] = to_amount(r["reward_amount"])
+      r["recommended"] = false
+    end
+
+    best = recs.select { |r| r.is_a?(Hash) }.max_by { |r| r["reward_amount"].to_f }
+    best["recommended"] = true if best
+    recs
+  end
+
+  # "₹3,000 - ₹3,600" -> 3000.0, "7950" -> 7950.0, 150 -> 150.0
+  def to_amount(value)
+    return value.to_f if value.is_a?(Numeric)
+
+    match = value.to_s.gsub(",", "")[/\d+(\.\d+)?/]
+    match.to_f
   end
 
   def cache_key

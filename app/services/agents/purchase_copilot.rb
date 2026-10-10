@@ -81,7 +81,14 @@ module Agents
 
         OUTPUT RULES:
         - Provide one entry for EVERY card in the wallet.
-        - reward_amount: a pure NUMBER — total rupee value (rewards + applicable live offer).
+        - reward_amount: a pure NUMBER = the REALISTIC rupee value for THIS exact
+          purchase. Only count a merchant-locked offer (e.g. "5% on Flipkart") if
+          that merchant is the purchase merchant. If no merchant was given, value
+          each card at its GENERAL rate — never assume the user shops at a merchant
+          they did not name.
+        - recommended: set true for EXACTLY ONE card — the one with the HIGHEST
+          reward_amount. Your recommendation and the numbers must agree; never flag
+          a card as best while another has a higher reward_amount.
         - Cite the [S#] tags from tool results for any figure you take from live data.
         - Return ONLY a JSON array, no prose, with objects shaped exactly:
           {"card_name": string, "recommended": boolean, "reward_amount": number,
