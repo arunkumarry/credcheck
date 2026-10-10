@@ -75,7 +75,11 @@ module Agents
     end
 
     def system_instructions(active_cards)
-      wallet = active_cards.map { |uc| "- #{uc.card.name} (#{uc.card.bank.name})" }.join("\n")
+      wallet = active_cards.map do |uc|
+        summary = uc.card.data&.dig("reward_summary").presence ||
+                  "standard ~1% base reward on all spends"
+        "- #{uc.card.name} (#{uc.card.bank.name}) — Reward structure: #{summary}"
+      end.join("\n")
       banks = active_cards.map { |uc| uc.card.bank.name }.uniq
       baseline = baseline_rules(active_cards)
       month = Time.current.strftime("%B %Y")
@@ -107,11 +111,17 @@ module Agents
 
         OUTPUT RULES:
         - Provide one entry for EVERY card in the wallet.
-        - reward_amount: a pure NUMBER = the REALISTIC rupee value for THIS exact
-          purchase. Only count a merchant-locked offer (e.g. "5% on Flipkart") if
-          that merchant is the purchase merchant. If no merchant was given, value
-          each card at its GENERAL rate — never assume the user shops at a merchant
-          they did not name.
+        - reward_amount: a pure NUMBER = total rupee value for THIS purchase =
+          (the card's BASE reward rate from its Reward structure, applied to the
+          amount) PLUS any applicable LIVE offer whose bank matches this card.
+          ALWAYS include the base reward — NEVER return 0 for a card that earns a
+          base reward. Example: a 1.5% card on a Rs.1,00,000 purchase earns at
+          least Rs.1,500 even with no special offer.
+        - Only add a merchant-locked offer (e.g. "5% on Flipkart") if that
+          merchant is the purchase merchant. If no merchant was given, use each
+          card's GENERAL base rate — never assume a merchant the user did not name.
+        - In "rewards", briefly show the breakdown (base reward + offer) so the
+          number is explainable.
         - recommended: set true for EXACTLY ONE card — the one with the HIGHEST
           reward_amount. Your recommendation and the numbers must agree; never flag
           a card as best while another has a higher reward_amount.
