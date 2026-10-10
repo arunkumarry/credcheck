@@ -38,8 +38,9 @@
 
           <div>
             <%= f.label :amount, "Purchase Amount", class: "block text-sm font-medium text-gray-700" %>
+            <span class="text-xs text-gray-400">optional if you enter a product — we'll fetch the live price</span>
             <div class="mt-1">
-              <%= f.number_field :amount, step: "0.01", min: "0", class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., 20000", required: true %>
+              <%= f.number_field :amount, step: "0.01", min: "0", class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border", placeholder: "e.g., 20000 (leave blank to auto-detect)" %>
             </div>
           </div>
 

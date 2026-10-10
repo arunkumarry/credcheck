@@ -5,23 +5,31 @@ class RecommendationsController < ApplicationController
   end
 
   def create
-    @category = params[:category]
-    @amount = params[:amount]
-    @merchant = params[:merchant]
-    @product = params[:product]
+    @category = params[:category].presence
+    @amount = params[:amount].presence
+    @merchant = params[:merchant].presence
+    @product = params[:product].presence
 
-    if @category.present? && @amount.present?
+    if @category.present? && (@amount.present? || @product.present?)
       if Current.user.can_get_recommendation?
         agent = RagAgent.new(Current.user, @category, @amount, merchant: @merchant, product: @product)
         @recommendation, tokens = agent.call
         @citations = agent.citations
         @steps = agent.steps
-        save_recommendation(Current.user, @category, @amount, @recommendation, tokens)
+        # When the user left amount blank, the agent discovers a live price.
+        @amount = agent.resolved_amount
+        @price_discovered = params[:amount].blank? && @amount.present?
+
+        if @amount.present?
+          save_recommendation(Current.user, @category, @amount, @recommendation, tokens)
+        else
+          @error = "Couldn't find a live price for \"#{@product}\". Please enter an approximate amount."
+        end
       else
         @error = "You have reached your weekly recommendation limit (#{Current.user.weekly_recommendations_limit}). Upgrade to Premium for unlimited access!"
       end
     else
-      @error = "Please provide both category and amount."
+      @error = "Please enter a category and either an amount or a product to price."
     end
 
     respond_to do |format|

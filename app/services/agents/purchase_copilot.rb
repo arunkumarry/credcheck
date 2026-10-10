@@ -15,22 +15,29 @@ module Agents
     MODEL = "claude-haiku-4-5".freeze
     PROVIDER = :anthropic
 
-    Result = Struct.new(:recommendations, :tokens, :trace, keyword_init: true)
+    Result = Struct.new(:recommendations, :tokens, :trace, :amount, keyword_init: true)
+
+    # Listings we don't want to price against when discovering a price.
+    JUNK_PATTERNS = /renew|refurb|used|second.?hand|locked|case|cover|screen|guard|protector|cable|charger/i
 
     def initialize(user:, category:, amount:, merchant: nil, product: nil)
       @user = user
       @category = category.to_s
-      @amount = amount
+      @amount = amount.presence
       @merchant = merchant.to_s.presence
       @product = product.to_s.presence
     end
 
     def call
       active_cards = @user.user_cards.active.includes(card: :bank)
-      return Result.new(recommendations: [], tokens: {}, trace: nil) if active_cards.empty?
+      return Result.new(recommendations: [], tokens: {}, trace: nil, amount: @amount) if active_cards.empty?
 
       trace = SearchTrace.new
       client = LiveSearch::SerpApiClient.new
+
+      # If the user didn't give an amount, discover the live price first so the
+      # agent (and the stored record) have a concrete figure to work with.
+      resolve_price(client, trace) if @amount.blank? && @product.present?
 
       chat = RubyLLM.chat(model: MODEL, provider: PROVIDER, assume_model_exists: true)
       chat.with_instructions(system_instructions(active_cards))
@@ -43,10 +50,29 @@ module Agents
       response = chat.ask(user_prompt)
       recommendations = parse_json(response.content)
 
-      Result.new(recommendations: recommendations, tokens: tokens(response), trace: trace)
+      Result.new(recommendations: recommendations, tokens: tokens(response), trace: trace, amount: @amount)
     end
 
     private
+
+    # Deterministic price discovery via Google Shopping: filter out junk
+    # listings (refurbished / accessories), then use the median new-unit price.
+    # Recorded in the trace so it shows up as the agent's first step.
+    def resolve_price(client, trace)
+      query = [ @product, @merchant, "price India" ].compact.join(" ")
+      hits = client.shopping(query, num: 12)
+      trace.log_step(tool: "Google Shopping", query: query, count: hits.size)
+
+      clean = hits.reject { |h| h.title.to_s.match?(JUNK_PATTERNS) }
+      clean = hits if clean.empty?
+      clean.first(6).each { |h| trace.cite(h) }
+
+      prices = clean.map(&:extracted_price).compact.map(&:to_f).select(&:positive?).sort
+      return if prices.empty?
+
+      @amount = prices[prices.size / 2].round # median
+      @price_discovered = true
+    end
 
     def system_instructions(active_cards)
       wallet = active_cards.map { |uc| "- #{uc.card.name} (#{uc.card.bank.name})" }.join("\n")
@@ -97,10 +123,19 @@ module Agents
     end
 
     def user_prompt
-      parts = [ "Purchase category: #{@category}", "Amount: ₹#{@amount}" ]
+      parts = [ "Purchase category: #{@category}" ]
+
+      if @price_discovered && @amount.present?
+        parts << "Amount: ₹#{@amount} — this is the live Google Shopping price I already looked up for you; use it and do NOT search shopping again."
+      elsif @amount.present?
+        parts << "Amount: ₹#{@amount}"
+      else
+        parts << "Amount: not given — call shopping_search to find the live price, then use it."
+      end
+
       parts << "Merchant/platform: #{@merchant}" if @merchant
       parts << "Product: #{@product}" if @product
-      parts << "Which card in my wallet should I use? Fetch live prices and offers first."
+      parts << "Which card in my wallet should I use? Use live offers for each bank."
       parts.join("\n")
     end
 

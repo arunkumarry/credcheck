@@ -1,7 +1,17 @@
 <%= turbo_stream.replace "recommendation_result" do %>
   <%= turbo_frame_tag "recommendation_result" do %>
     <div class="bg-white shadow rounded-lg p-6 animate-fade-in-up">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Recommendation for <%= "₹#{@amount}" %> on <%= @category %></h2>
+      <h2 class="text-xl font-semibold text-gray-900 mb-1">
+        Recommendation for <%= @product.presence || @category %>
+        <% if @amount.present? %>
+          <span class="text-gray-500 font-normal">· ₹<%= number_with_delimiter(@amount.to_f.round) %></span>
+        <% end %>
+      </h2>
+      <% if @price_discovered %>
+        <p class="text-xs text-indigo-600 mb-3">💡 Price auto-detected live from Google Shopping — no amount entered.</p>
+      <% else %>
+        <div class="mb-3"></div>
+      <% end %>
 
       <% if @steps.present? %>
         <details class="mb-4 rounded-lg border border-indigo-100 bg-indigo-50/40" open>
