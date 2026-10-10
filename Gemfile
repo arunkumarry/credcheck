@@ -85,3 +85,6 @@ gem "ruby_llm", github: "crmne/ruby_llm", branch: "main"
 gem "httparty"
 gem "rack-attack"
 gem "llm_optimizer"
+
+# MCP server (expose CredCheck as tools to AI clients)
+gem "fast-mcp"
