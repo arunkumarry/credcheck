@@ -9,11 +9,6 @@ price and today's bank offers at the moment you ask.
 
 Built for the **SerpApi India Hackathon 2026** (AI Agents / Commerce tracks).
 
-> **Prior-work disclosure:** CredCheck is built on an earlier personal project,
-> *checkcred* (a credit-card RAG app). The live SerpApi agent layer described
-> below — everything under `app/services/live_search/` and
-> `app/services/agents/` — is new for this hackathon.
-
 ---
 
 ## How it works — the agent loop
@@ -205,8 +200,5 @@ db/seeds_card_rewards.rb    # card reward structures the agent folds into each r
 
 ## Disclosures
 
-- **Prior work:** built on the author's earlier *checkcred* project; the live
-  SerpApi agent layer (`app/services/live_search/`, `app/services/agents/`) is
-  new for this hackathon.
 - **AI tools:** developed with AI coding assistance (Claude). The product itself
   uses Anthropic Claude (via RubyLLM) as its recommendation engine.
