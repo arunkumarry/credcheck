@@ -65,7 +65,7 @@ group :test do
 end
 
 gem "turbo-rails"
-gem "vite_rails", "~> 3.0"
+gem "vite_rails", "~> 3.11"
 
 gem "pry", "~> 0.15.2"
 
