@@ -1,8 +1,4 @@
 {
-  "scripts": {
-    "build:extension": "vite build --config vite.extension.config.mts --mode production && cp checkcred-extension/manifest.json checkcred-extension/popup.html checkcred-extension/styles.css checkcred-extension/background.js dist-extension/",
-    "build:extension:dev": "vite build --config vite.extension.config.mts --mode development && cp checkcred-extension/manifest.json checkcred-extension/popup.html checkcred-extension/styles.css checkcred-extension/background.js dist-extension/"
-  },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@types/node": "^25.6.0",
