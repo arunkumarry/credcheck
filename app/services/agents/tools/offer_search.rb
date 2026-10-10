@@ -10,7 +10,7 @@ module Agents
         reference in your final answer.
       DESC
 
-      param :query, desc: "Offer search query including the bank name, merchant/category and current month+year"
+      parameter :query, description: "Offer search query including the bank name, merchant/category and current month+year"
 
       def initialize(client:, trace:)
         @client = client
