@@ -6,7 +6,12 @@
     </div>
 
     <div class="bg-white shadow rounded-lg p-6">
-      <%= form_with url: recommendation_path, method: :post, data: { turbo_frame: "recommendation_result" } do |f| %>
+      <%= form_with url: recommendation_path, method: :post, data: {
+            turbo_frame: "recommendation_result",
+            controller: "recommendation-progress",
+            recommendation_progress_banks_value: (@wallet_banks || []).to_json,
+            recommendation_progress_frame_value: "recommendation_result"
+          } do |f| %>
         <div class="space-y-6">
           <div>
             <%= f.label :category, "Purchase Category", class: "block text-sm font-medium text-gray-700" %>

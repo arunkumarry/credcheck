@@ -1,5 +1,7 @@
 class RecommendationsController < ApplicationController
   def new
+    @wallet_banks = Current.user.user_cards.active.includes(card: :bank)
+                           .map { |uc| uc.card.bank.name }.uniq
   end
 
   def create
