@@ -9,7 +9,7 @@ module Agents
         hits with [S#] citation tags you must reference in your final answer.
       DESC
 
-      param :query, desc: "News search query about a sale event or offer announcement"
+      parameter :query, description: "News search query about a sale event or offer announcement"
 
       def initialize(client:, trace:)
         @client = client

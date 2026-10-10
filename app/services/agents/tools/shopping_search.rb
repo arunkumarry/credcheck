@@ -9,7 +9,7 @@ module Agents
         [S#] citation tags you must reference in your final answer.
       DESC
 
-      param :query, desc: "Product search query, e.g. 'iPhone 15 128GB India'"
+      parameter :query, description: "Product search query, e.g. 'iPhone 15 128GB India'"
 
       def initialize(client:, trace:)
         @client = client

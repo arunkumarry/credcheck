@@ -67,16 +67,17 @@ module Agents
 
         TODAY IS #{month}.
 
-        HOW TO WORK (agent loop):
+        HOW TO WORK (agent loop) — BE ECONOMICAL, aim for 4-5 searches TOTAL:
         1. PLAN which searches you need for this purchase.
-        2. If a specific product is named, call shopping_search for its live price.
-        3. Call offer_search once per bank in the wallet (#{banks.join(', ')}),
-           including the merchant/category and "#{month}" in each query, to find
-           current offers, cashback and coupon codes.
-        4. If a sale event seems likely, call news_search to confirm timing.
+        2. If a specific product is named, call shopping_search ONCE for its live price.
+        3. Call offer_search EXACTLY ONCE per bank in the wallet (#{banks.join(', ')}),
+           including the merchant/category and "#{month}" in each query. Do NOT run
+           per-card variants and do NOT repeat a search you already ran.
+        4. Optionally call news_search ONCE if a sale event might change the answer.
         5. COMPARE: fold live offers + prices over the baseline rules. An offer only
            applies to a card whose bank matches the offer's bank.
-        6. ACT: return your recommendation.
+        6. ACT: return your recommendation. Do not keep searching once you have
+           one offer result per bank.
 
         OUTPUT RULES:
         - Provide one entry for EVERY card in the wallet.
@@ -107,13 +108,17 @@ module Agents
     end
 
     def parse_json(content)
-      json = content.to_s.match(/\[.*\]/m)&.to_s
+      text = content.to_s
+      # The model often wraps the answer in prose and inline [S#] citation
+      # brackets, so a naive /\[.*\]/ would grab a citation like "[S8, S9]".
+      # Prefer a fenced ```json block, else the first array-of-objects.
+      json = text[/```(?:json)?\s*(\[.*?\])\s*```/m, 1] || text[/\[\s*\{.*\}\s*\]/m]
       return [] if json.blank?
 
       data = JSON.parse(json)
       data.is_a?(Array) ? data.map(&:deep_stringify_keys) : []
     rescue JSON::ParserError => e
-      Rails.logger.error("PurchaseCopilot JSON parse failed: #{e.message}. Content: #{content.to_s.truncate(400)}")
+      Rails.logger.error("PurchaseCopilot JSON parse failed: #{e.message}. Content: #{text.truncate(400)}")
       []
     end
 
@@ -121,7 +126,7 @@ module Agents
       {
         input_tokens: response.input_tokens,
         output_tokens: response.output_tokens,
-        cached_tokens: response.cached_tokens,
+        cached_tokens: (response.cache_read_tokens if response.respond_to?(:cache_read_tokens)),
         model: MODEL
       }
     end
