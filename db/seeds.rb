@@ -61,3 +61,5 @@ wallet.each do |bank_name, card_name|
   UserCard.find_or_create_by!(user: demo, card: card) { |uc| uc.status = :active }
 end
 puts "Demo wallet: #{demo.user_cards.active.count} active cards."
+
+load Rails.root.join("db", "seeds_card_rewards.rb")
