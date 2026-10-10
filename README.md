@@ -167,6 +167,19 @@ Same-day repeat lookups are cached, so re-asking the same purchase is instant.
 
 ---
 
+## Use it from AI clients (MCP)
+
+CredCheck ships an **MCP server** so you can use it directly inside Claude
+Desktop / Claude Code and other MCP clients — ask "which card should I use for
+an iPhone 17 on Amazon?" and it answers with the best card, the rupee value, and
+the live SerpApi sources. Tools: `recommend_card`, `live_product_price`,
+`list_wallet`. See **[mcp/README.md](mcp/README.md)** for setup.
+
+```bash
+# sanity check
+bundle exec ruby mcp/credcheck_mcp_server.rb
+```
+
 ## Project structure (key files)
 
 ```
