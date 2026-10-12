@@ -86,7 +86,7 @@ production:
   primary: &primary_production
     <<: *default
     database: credcheck_production
-    username: credcheck
+    username: <%= ENV.fetch("DATABASE_USER") { "credcheck" } %>
     password: <%= ENV["CREDCHECK_DATABASE_PASSWORD"] %>
     host: <%= ENV.fetch("DATABASE_HOST") { "localhost" } %>
   cache:
