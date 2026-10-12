@@ -44,7 +44,31 @@ recommendation.
 
 ---
 
-## Prerequisites
+## Run with Docker (recommended — one command)
+
+The whole app (web + a pgvector Postgres) runs in containers, and the database
+is created, migrated, and **seeded automatically** on first boot — no manual
+steps beyond adding your two API keys.
+
+```bash
+cp .env.example .env          # then set SERP_API_KEY and ANTHROPIC_API_KEY
+docker compose up --build     # builds, waits for the db, creates+seeds, serves
+```
+
+Open **http://localhost:3000** and sign in:
+
+| | |
+|---|---|
+| Email | `demo@credcheck.in` |
+| Password | `password123` |
+
+That's it. (Prerequisite: Docker Desktop / Docker Engine with Compose v2.)
+
+To stop: `docker compose down` — add `-v` to also wipe the database volume.
+
+---
+
+## Prerequisites (for running without Docker)
 
 | Tool | Version | Notes |
 |------|---------|-------|

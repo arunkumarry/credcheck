@@ -49,3 +49,7 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Demo videos / local artifacts
+*.mp4
+/mcp/*.log

@@ -1,18 +1,52 @@
-version: "3.9"
+# Turnkey local run:
+#   1. cp .env.example .env   (then set SERP_API_KEY and ANTHROPIC_API_KEY)
+#   2. docker compose up --build
+#   3. open http://localhost:3000  (demo@credcheck.in / password123)
+#
+# The web container builds the app (assets prebaked), waits for the pgvector
+# database, then creates + migrates + seeds it automatically — no manual steps.
 
 services:
   db:
     image: pgvector/pgvector:pg18
-    container_name: postgres_db
-    restart: always
+    container_name: credcheck_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: checkcred_development
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    # No host port mapping by default (avoids clashing with a local Postgres).
+    # Uncomment to connect from the host: ports: ["5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  web:
+    build: .
+    container_name: credcheck_web
+    depends_on:
+      db:
+        condition: service_healthy
+    # Your API keys (SERP_API_KEY, ANTHROPIC_API_KEY) are read from .env at runtime.
+    env_file:
+      - .env
+    environment:
+      RAILS_ENV: production
+      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_LOG_TO_STDOUT: "true"
+      # Local-only key for the container; fine to commit (not a real secret).
+      SECRET_KEY_BASE: "credcheck_local_docker_only_0000000000000000000000000000000000000000000000000000000000000000"
+      # Point the app at the db service (overrides config/database.yml).
+      DATABASE_HOST: db
+      DATABASE_USER: postgres
+      CREDCHECK_DATABASE_PASSWORD: password
+    ports:
+      - "3000:3000"
+    # Create/migrate/seed on first boot (idempotent), then serve.
+    command: ["bash", "-c", "./bin/rails db:prepare && ./bin/rails server -b 0.0.0.0 -p 3000"]
 
 volumes:
   postgres_data:
