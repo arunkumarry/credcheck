@@ -67,7 +67,7 @@ end
 gem "turbo-rails"
 gem "vite_rails", "~> 3.0"
 
-gem "pry", "~> 0.15.2"
+gem "pry", "~> 0.16.0"
 
 gem "nokogiri"
 gem "open-uri"
